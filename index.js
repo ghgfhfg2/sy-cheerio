@@ -49,6 +49,10 @@ app.get("/getMessage", async (req, res) => {
   );
 });
 
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
 const server = app.listen(process.env.PORT || "4000", () => {
   console.log("server listening on port %s", server.address().port);
 });
