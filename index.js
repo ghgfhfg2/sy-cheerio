@@ -50,7 +50,7 @@ app.get("/getMessage", async (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello World!!");
 });
 
 const server = app.listen(process.env.PORT || "4000", () => {
