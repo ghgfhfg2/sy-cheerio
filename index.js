@@ -8,7 +8,11 @@ const previousMonday = require("date-fns/previousMonday");
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://cheerio-test-38305.web.app",
+      "https://k-drama-rate.sooyadev.com",
+    ],
     credentials: true,
   })
 );
