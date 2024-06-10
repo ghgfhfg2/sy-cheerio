@@ -25,7 +25,7 @@ const getInfoRate = async (title) => {
   //기본정보 및 시청률 url
   const rateData = await axios
     .get(
-      `https://search.daum.net/search?nil_suggest=btn&w=tot&DA=SBC&q=${title}`,
+      `https://search.daum.net/search?nil_suggest=btn&w=tot&DA=SBC&q=${title} 출연진`,
       {
         headers: {
           "User-Agent":
