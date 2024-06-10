@@ -40,7 +40,7 @@ const getInfoRate = async (title) => {
       const code = link ? link.split("&irk=")[1].split("&")[0] : "";
 
       const castArr = [];
-      $(".castingList .sub_name").each((i, el) => castArr.push($(el).text()));
+      $(".castingList .sub_name a").each((i, el) => castArr.push($(el).text()));
       obj.casting = castArr;
       const url = `https://search.daum.net/search?w=tv&q=${title}&irt=tv-program&irk=${code}&DA=TVP`;
       const data = {
