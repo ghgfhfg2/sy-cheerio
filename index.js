@@ -6,36 +6,12 @@ const isTuesday = require("date-fns/isTuesday");
 const previousMonday = require("date-fns/previousMonday");
 
 const app = express();
-app.use(express.json()); // JSON 요청 바디를 파싱하기 위한 설정
-
-// CORS 설정
-app.use((req, res, next) => {
-  const allowedOrigins = [
-    "https://port-0-sy-cheerio-2rrqq2blmlvy0fh.sel5.cloudtype.app",
-    "https://k-drama-rate.sooyadev.com",
-    "https:/sooyadev.com",
-    "http://localhost:3000",
-  ];
-
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin); // 요청한 출처만 허용
-  }
-
-  res.setHeader("Access-Control-Allow-Credentials", "true"); // 쿠키 허용
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With"
-  );
-
-  // OPTIONS 요청에 대해 응답
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
+app.use(
+  cors({
+    origin: "*", // 허용할 도메인 명시
+    methods: ["GET", "POST"],
+  })
+);
 
 const getInfoRate = async (title) => {
   let obj = {};
@@ -164,6 +140,6 @@ app.get("/", (req, res) => {
   res.send("Hello World!!!");
 });
 
-const server = app.listen(process.env.PORT || "443", () => {
+const server = app.listen(process.env.PORT || "4000", () => {
   console.log("server listening on port %s", server.address().port);
 });
