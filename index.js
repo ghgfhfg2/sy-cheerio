@@ -2,45 +2,23 @@ const express = require("express");
 const cors = require("cors");
 const cheerio = require("cheerio");
 const axios = require("axios");
+const isTuesday = require("date-fns/isTuesday");
 const previousMonday = require("date-fns/previousMonday");
 
 const app = express();
-
-// 1. CORS 설정 개선
 app.use(
   cors({
-    origin: (origin, callback) => {
-      const allowedOrigins = "*";
-      if (allowedOrigins.includes(origin) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: "*",
     credentials: true,
   })
 );
 
-// 2. 모든 요청에 필요한 CORS 헤더 설정
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, DELETE"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
-
-// 3. OPTIONS 프리플라이트 요청 처리
-app.options("*", (req, res) => {
-  res.sendStatus(200);
-});
-
 const getInfoRate = async (title) => {
-  let obj = { casting: {}, list: [] };
+  let obj = {};
+  obj.casting = {};
+  obj.list = [];
 
+  //기본정보 및 시청률 url
   const rateData = await axios
     .get(
       `https://search.daum.net/search?nil_suggest=btn&w=tot&DA=SBC&q=${title} 출연진`,
@@ -60,15 +38,16 @@ const getInfoRate = async (title) => {
       const castArr = [];
       $(".castingList .sub_name a").each((i, el) => castArr.push($(el).text()));
       obj.casting = castArr;
-
-      return {
+      const url = `https://search.daum.net/search?w=tv&q=${title}&irt=tv-program&irk=${code}&DA=TVP`;
+      const data = {
         code,
-        url: `https://search.daum.net/search?w=tv&q=${title}&irt=tv-program&irk=${code}&DA=TVP`,
+        url,
       };
+      return data;
     });
 
   if (!rateData.code) return;
-
+  //시청률 추이정보
   await axios
     .get(rateData.url, {
       headers: {
@@ -80,7 +59,7 @@ const getInfoRate = async (title) => {
       const $ = cheerio.load(res.data);
       $(".tbl_rank tbody > tr").each((i, el) => {
         let temp;
-        if ($(el).find("td:nth-child(2)").text().includes("회")) {
+        if ($(el).find("td:nth-child(2)").text().indexOf("회") > -1) {
           temp = {
             date: $(el).find("td:nth-child(1)").text(),
             num: $(el).find("td:nth-child(2)").text(),
@@ -96,7 +75,6 @@ const getInfoRate = async (title) => {
         obj.list.push(temp);
       });
     });
-
   return obj;
 };
 
@@ -111,49 +89,57 @@ const getRankData = async (url) => {
     })
     .then((res) => {
       const $ = cheerio.load(res.data);
-      $(".scroll_bx > .tb_list tbody tr").each((i, el) => {
+      const list = $(".scroll_bx > .tb_list tbody tr");
+      list.each((i, el) => {
+        const title = $(el).find("td:nth-child(2) p").text();
+        const ch = $(el).find("td:nth-child(3) p a").text();
+        const rate = $(el).find("td:nth-child(4) p.rate").text();
         arr.push({
-          title: $(el).find("td:nth-child(2) p").text(),
-          ch: $(el).find("td:nth-child(3) p a").text(),
-          rate: $(el).find("td:nth-child(4) p.rate").text(),
+          title,
+          ch,
+          rate,
         });
       });
     });
-
   return arr;
 };
 
-// 전체 시청률 순위
+//전체 시청률 순위
 app.get("/getRank", async (req, res) => {
-  const { month, date } = req.query;
+  let month = req.query.month;
+  let date = req.query.date;
 
-  const urls = [
-    `https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&mra=blUw&qvt=0&query=${month}월${date}일주%20드라마%20지상파시청률`,
-    `https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&mra=blUw&qvt=0&query=${month}월${date}일주%20드라마%20종합편성시청률`,
-    `https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&mra=blUw&qvt=0&query=${month}월${date}일주%20드라마%20케이블시청률`,
-  ];
+  const initUrl = `https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&mra=blUw&qvt=0&query=${month}월${date}일주%20드라마%20지상파시청률`;
+  const jongUrl = `https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&mra=blUw&qvt=0&query=${month}월${date}일주%20드라마%20종합편성시청률`;
+  const caUrl = `https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&mra=blUw&qvt=0&query=${month}월${date}일주%20드라마%20케이블시청률`;
 
-  const data = await Promise.all(urls.map(getRankData));
-  const list = data.flat();
-  res.json({ list: JSON.stringify(list) });
+  let arr = [];
+  const data1 = await getRankData(initUrl);
+  const data2 = await getRankData(jongUrl);
+  const data3 = await getRankData(caUrl);
+  arr = [...data1, ...data2, ...data3];
+  res.json({
+    list: JSON.stringify(arr),
+  });
 });
 
-// 시청률 추이
+//시청률 추이
 app.get("/getRateAll", async (req, res) => {
   const rateData = await getInfoRate(req.query.title);
   if (!rateData) {
-    return res.status(404).send("Data not found");
+    return res.send("");
+  } else {
+    res.json({
+      casting: rateData.casting,
+      list: JSON.stringify(rateData.list),
+    });
   }
-  res.json({
-    casting: rateData.casting,
-    list: JSON.stringify(rateData.list),
-  });
 });
 
 app.get("/", (req, res) => {
   res.send("Hello World!!!");
 });
 
-const server = app.listen(process.env.PORT || 4000, () => {
+const server = app.listen(process.env.PORT || "4000", () => {
   console.log("server listening on port %s", server.address().port);
 });
