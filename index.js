@@ -10,12 +10,7 @@ const app = express();
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = [
-        "http://localhost:3000",
-        "http://localhost:5174",
-        "https://cheerio-test-38305.web.app",
-        "https://k-drama-rate.sooyadev.com",
-      ];
+      const allowedOrigins = "*";
       if (allowedOrigins.includes(origin) || !origin) {
         callback(null, true);
       } else {
