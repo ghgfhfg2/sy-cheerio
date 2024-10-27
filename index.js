@@ -8,7 +8,11 @@ const previousMonday = require("date-fns/previousMonday");
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://k-drama-rate.sooyadev.com"], // 허용할 도메인 명시
+    origin: [
+      "http://localhost:3000",
+      "https://port-0-sy-cheerio-2rrqq2blmlvy0fh.sel5.cloudtype.app",
+      "https://k-drama-rate.sooyadev.com",
+    ], // 허용할 도메인 명시
     credentials: true, // 쿠키 및 인증 정보 허용
   })
 );
