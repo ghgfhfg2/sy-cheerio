@@ -13,6 +13,7 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     "https://port-0-sy-cheerio-2rrqq2blmlvy0fh.sel5.cloudtype.app",
     "https://k-drama-rate.sooyadev.com",
+    "https:/sooyadev.com",
     "http://localhost:3000",
   ];
 
