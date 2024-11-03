@@ -9,23 +9,30 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://port-0-sy-cheerio-2rrqq2blmlvy0fh.sel5.cloudtype.app", // 실제 프론트엔드 도메인으로 변경
+  "http://localhost:3000",
+  "https://port-0-sy-cheerio-2rrqq2blmlvy0fh.sel5.cloudtype.app",
+  // 추가 도메인이 있다면 여기에 추가
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+// CORS 미들웨어를 라우터보다 먼저 설정
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Credentials", true);
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+  }
+
+  // OPTIONS 요청 처리
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
 
 const getInfoRate = async (title) => {
   let obj = {};
