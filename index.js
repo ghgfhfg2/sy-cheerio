@@ -7,32 +7,13 @@ const previousMonday = require("date-fns/previousMonday");
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://port-0-sy-cheerio-2rrqq2blmlvy0fh.sel5.cloudtype.app",
-  // 추가 도메인이 있다면 여기에 추가
-];
-
-// CORS 미들웨어를 라우터보다 먼저 설정
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-    res.header("Access-Control-Allow-Credentials", true);
-    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    );
-  }
-
-  // OPTIONS 요청 처리
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-  next();
-});
+app.use(
+  cors({
+    origin: "*", // 모든 도메인 허용
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 const getInfoRate = async (title) => {
   let obj = {};
