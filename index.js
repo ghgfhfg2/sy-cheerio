@@ -6,10 +6,24 @@ const isTuesday = require("date-fns/isTuesday");
 const previousMonday = require("date-fns/previousMonday");
 
 const app = express();
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://port-0-sy-cheerio-2rrqq2blmlvy0fh.sel5.cloudtype.app", // 실제 프론트엔드 도메인으로 변경
+];
+
 app.use(
   cors({
-    origin: "*", // 허용할 도메인 명시
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
     methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
