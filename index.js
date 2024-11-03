@@ -9,9 +9,14 @@ const app = express();
 
 app.use(
   cors({
-    origin: "*", // 모든 도메인 허용
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://cheerio-test-38305.web.app",
+      "https://k-drama-rate.sooyadev.com",
+    ],
+    credentials: true,
   })
 );
 
