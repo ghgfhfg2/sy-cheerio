@@ -16,7 +16,6 @@ app.use(
       "https://cheerio-test-38305.web.app",
       "https://k-drama-rate.sooyadev.com",
     ],
-    credentials: true,
   })
 );
 
