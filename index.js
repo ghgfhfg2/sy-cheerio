@@ -15,6 +15,8 @@ app.use(
       "http://localhost:5174",
       "https://cheerio-test-38305.web.app",
       "https://k-drama-rate.sooyadev.com",
+      "https://k-drama-rate.sooyadev.com/main/",
+      "https://k-drama-rate.sooyadev.com/",
     ],
   })
 );
