@@ -9,17 +9,24 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://cheerio-test-38305.web.app",
-      "https://k-drama-rate.sooyadev.com",
-      "https://k-drama-rate.sooyadev.com/main/",
-      "https://k-drama-rate.sooyadev.com/",
-    ],
+    origin: "https://k-drama-rate.sooyadev.com",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    optionsSuccessStatus: 200,
   })
 );
+
+app.use((req, res, next) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://k-drama-rate.sooyadev.com"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
 
 const getInfoRate = async (title) => {
   let obj = {};
